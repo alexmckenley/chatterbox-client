@@ -5,17 +5,21 @@ var room;
 var roomList = [];
 var friends = [];
 
+var events = _.clone(Backbone.Events);
+
 var Chats = function () {
 
 };
 
-Chats.prototype.send = function(options){
+Chats.prototype.send = function(message){
   $.ajax({
     url: url,
     type: "POST",
-    data: JSON.stringify(options.message),
+    data: JSON.stringify(message),
     contentType: 'application/json',
-    success: options.success,
+    success: function(){
+      events.trigger("chat:send");
+    },
     error: function(req, errType, errMsg){
       console.error("Error sending request: ", errMsg);
     }
@@ -44,6 +48,46 @@ Chats.prototype.get = function() {
   });
 };
 
+var ChatView = function(options) {
+  this.chats = options.chats;
+  var add = $.proxy(this.sendMessage,this);
+  $('#chatForm').submit(add);
+
+  events.on("chat:send", this.clearInput, this);
+
+  $('.toggleRoom').click(function(e) {
+    e.preventDefault();
+    $(".enterRoom").toggle();
+  });
+  $("#roomForm").submit(selectRoom);
+  $(".chats").on("click", ".username", function(e){
+    e.preventDefault();
+    var user = $(this).data("user");
+    if (!_.contains(friends, user)) {
+      friends.push(user);
+      $(".friendList").append($("<li>" + user + "</li>"));
+      updateFriends(user);
+    }
+  });
+};
+
+ChatView.prototype.sendMessage = function(e) {
+  e.preventDefault();
+  var that = this;
+  this.chats.send({
+      username: getURLParameter('username'),
+      text: $('.newMessage').val(),
+      roomname: room
+  });
+};
+
+ChatView.prototype.clearInput = function() {
+  $(".newMessage").val("");
+};
+
+var ChatsView = function() {
+
+};
 
 var appendNode = function(response) {
   var node = $("<div class='chat' data-room='" + response.roomname + "'></div>");
@@ -95,34 +139,6 @@ $(document).ready(function() {
   var chats = new Chats();
   chats.get();
   setInterval(chats.get.bind(chats), 1000);
-
-  $('#chatForm').submit(function(event) {
-    event.preventDefault();
-    chats.send({
-      message: {
-        username: getURLParameter('username'),
-        text: $('.newMessage').val(),
-        roomname: room
-      },
-      success: function(){
-        $(".newMessage").val("");
-      }
-    });
-  });
-
-  $('.toggleRoom').click(function(e) {
-    e.preventDefault();
-    $(".enterRoom").toggle();
-  });
-  $("#roomForm").submit(selectRoom);
-  $(".chats").on("click", ".username", function(e){
-    e.preventDefault();
-    var user = $(this).data("user");
-    if (!_.contains(friends, user)) {
-      friends.push(user);
-      $(".friendList").append($("<li>" + user + "</li>"));
-      updateFriends(user);
-    }
-  });
-
+  new ChatView({chats: chats});
+  new ChatsView();
 });
