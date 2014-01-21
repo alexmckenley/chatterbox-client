@@ -5,17 +5,24 @@ var room;
 var roomList = [];
 var friends = [];
 
-var appendNode = function(response) {
-  var node = $("<div class='chat' data-room='" + response.roomname + "'></div>");
-  var user = $("<a href='#' class='username' data-user='" + response.username + "'></a>").text(response.username + ":");
-  var message = $("<span class='text'></span>").text(response.text);
-  var time = $("<span class='createdAt'></span>").text(response.createdAt);
-  var chatroom = $("<span class='roomname'></span>").text("(" + response.roomname + ")");
-  node.append(user, message, time, chatroom);
-  $(".chats").prepend(node);
+var Chats = function () {
+
 };
 
-var getChats = function() {
+Chats.prototype.send = function(options){
+  $.ajax({
+    url: url,
+    type: "POST",
+    data: JSON.stringify(options.message),
+    contentType: 'application/json',
+    success: options.success,
+    error: function(req, errType, errMsg){
+      console.error("Error sending request: ", errMsg);
+    }
+  });
+};
+
+Chats.prototype.get = function() {
   $.get(url + "?order=-createdAt", function(response) {
     var messages = response.results;
     for (var i = messages.length -1; i >= 0 ; i--) {
@@ -37,32 +44,23 @@ var getChats = function() {
   });
 };
 
+
+var appendNode = function(response) {
+  var node = $("<div class='chat' data-room='" + response.roomname + "'></div>");
+  var user = $("<a href='#' class='username' data-user='" + response.username + "'></a>").text(response.username + ":");
+  var message = $("<span class='text'></span>").text(response.text);
+  var time = $("<span class='createdAt'></span>").text(response.createdAt);
+  var chatroom = $("<span class='roomname'></span>").text("(" + response.roomname + ")");
+  node.append(user, message, time, chatroom);
+  $(".chats").prepend(node);
+};
+
 var getURLParameter = function(name) {
   return decodeURI(
     (RegExp(name + '=' + '(.+?)(&|$)').exec(location.search)||[,null])[1]
   );
 };
 
-var sendMessage = function(event){
-  event.preventDefault();
-  var message = {
-    username: getURLParameter('username'),
-    text: $('.newMessage').val(),
-    roomname: room
-  };
-  $.ajax({
-    url: url,
-    type: "POST",
-    data: JSON.stringify(message),
-    contentType: 'application/json',
-    success: function(response){
-      $(".newMessage").val("");
-    },
-    error: function(req, errType, errMsg){
-      console.error("Error sending request: ", errMsg);
-    }
-  });
-};
 
 var selectRoom = function(e) {
   e.preventDefault();
@@ -94,10 +92,24 @@ var updateFriends = function(name) {
 
 $(document).ready(function() {
 
-  getChats();
-  setInterval(getChats, 1000);
+  var chats = new Chats();
+  chats.get();
+  setInterval(chats.get.bind(chats), 1000);
 
-  $('#chatForm').submit(sendMessage);
+  $('#chatForm').submit(function(event) {
+    event.preventDefault();
+    chats.send({
+      message: {
+        username: getURLParameter('username'),
+        text: $('.newMessage').val(),
+        roomname: room
+      },
+      success: function(){
+        $(".newMessage").val("");
+      }
+    });
+  });
+
   $('.toggleRoom').click(function(e) {
     e.preventDefault();
     $(".enterRoom").toggle();
