@@ -6,7 +6,7 @@ var ChatListView = Backbone.View.extend({
     setInterval(function() {
       // console.log("Before", that.collection);
       // console.log(that.collection);
-      var temp = JSON.stringify({createdAt: {"$gte": "2014-01-21T20:26:19.038Z"}});
+      var temp = JSON.stringify({createdAt: {"$gte":{"__type":"Date","iso":"2014-01-21T21:20:15.887Z"}}});
 
       that.collection.fetch({reset: true, data: { where: temp }});
     }, 1000);
