@@ -3,17 +3,17 @@ var url = 'https://api.parse.com/1/classes/chatterbox';
 var roomFilter = false;
 var room;
 var roomList = [];
+var friends = [];
 
 var appendNode = function(response) {
   var node = $("<div class='chat' data-room='" + response.roomname + "'></div>");
-  var user = $("<span class='username'></span>").text(response.username + ":");
-  var message = $("<span class'text'></span>").text(response.text);
+  var user = $("<a href='#' class='username' data-user='" + response.username + "'></a>").text(response.username + ":");
+  var message = $("<span class='text'></span>").text(response.text);
   var time = $("<span class='createdAt'></span>").text(response.createdAt);
   var chatroom = $("<span class='roomname'></span>").text("(" + response.roomname + ")");
   node.append(user, message, time, chatroom);
   $(".chats").prepend(node);
 };
-
 
 var getChats = function() {
   $.get(url + "?order=-createdAt", function(response) {
@@ -88,6 +88,10 @@ var selectRoom = function(e) {
 
 };
 
+var updateFriends = function(name) {
+  $("a[data-user='" + name + "']").parent().find(".text").css("font-weight", "bold");
+};
+
 $(document).ready(function() {
 
   getChats();
@@ -99,5 +103,14 @@ $(document).ready(function() {
     $(".enterRoom").toggle();
   });
   $("#roomForm").submit(selectRoom);
+  $(".chats").on("click", ".username", function(e){
+    e.preventDefault();
+    var user = $(this).data("user");
+    if (!_.contains(friends, user)) {
+      friends.push(user);
+      $(".friendList").append($("<li>" + user + "</li>"));
+      updateFriends(user);
+    }
+  });
 
 });

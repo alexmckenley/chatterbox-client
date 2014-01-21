@@ -23,9 +23,10 @@ body {
   margin-top: 10px;
   margin-bottom: 10px;
   overflow-x: scroll;
+  font-weight: normal;
 }
 
-.chat span{
+.chat span, .chat a{
   margin-right: 10px;
 }
 
@@ -43,12 +44,25 @@ body {
   color: red;
 }
 
-.text {
+.friends{
+  position: relative;
+  float: right;
+  top: 100px;
+  width: 200px;
+  padding-right: 20px;
+  text-align: right;
+  background-color: rgb(199, 222, 230);
+  border-radius: 10px;
 }
 
 .createdAt, .roomname {
   font-style: italic;
   opacity: 0.55;
   font-size: .8em
+}
+
+li {
+  margin-left: -25px;
+  list-style-type: none;
 }
 
