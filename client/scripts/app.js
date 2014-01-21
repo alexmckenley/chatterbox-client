@@ -1,7 +1,8 @@
 var latest = 0;
 var url = 'https://api.parse.com/1/classes/chatterbox';
 var roomFilter = false;
-var room = undefined;
+var room;
+var roomList = [];
 
 var appendNode = function(response) {
   var node = $("<div class='chat' data-room='" + response.roomname + "'></div>");
@@ -21,6 +22,10 @@ var getChats = function() {
       var date = new Date(messages[i].createdAt);
       if (date > latest) {
         appendNode(messages[i]);
+        if (!_.contains(roomList, messages[i].roomname)) {
+          roomList.push(messages[i].roomname);
+          $("#rooms").append("<option value='" + messages[i].roomname + "'>");
+        }
         if (roomFilter && messages[i].roomname !== room) {
           node.hide();
         }
@@ -51,6 +56,7 @@ var sendMessage = function(event){
     data: JSON.stringify(message),
     contentType: 'application/json',
     success: function(response){
+      $(".newMessage").val("");
     },
     error: function(req, errType, errMsg){
       console.error("Error sending request: ", errMsg);
