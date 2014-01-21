@@ -10,11 +10,11 @@ var getChats = function() {
       var date = new Date(messages[i].createdAt);
       if (date > latest) {
         var node = $("<div class='chat' data-room='" + messages[i].roomname + "'></div>");
-        var user = $("<p></p>").text(messages[i].username);
-        var message = $("<p></p>").text(messages[i].text);
-        var time = $("<p></p>").text(messages[i].createdAt);
-        var chatroom = $("<p></p>").text(messages[i].roomname);
-        node.append(user, message, chatroom, time);
+        var user = $("<span class='username'></span>").text(messages[i].username + ":");
+        var message = $("<span class'text'></span>").text(messages[i].text);
+        var time = $("<span class='createdAt'></span>").text(messages[i].createdAt);
+        var chatroom = $("<span class='roomname'></span>").text("(" + messages[i].roomname + ")");
+        node.append(user, message, time, chatroom);
         $(".chats").prepend(node);
         if (roomFilter && messages[i].roomname !== room) {
           node.hide();
