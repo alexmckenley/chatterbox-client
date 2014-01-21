@@ -1,7 +1,18 @@
 var latest = 0;
 var url = 'https://api.parse.com/1/classes/chatterbox';
 var roomFilter = false;
-var room = "";
+var room = undefined;
+
+var appendNode = function(response) {
+  var node = $("<div class='chat' data-room='" + response.roomname + "'></div>");
+  var user = $("<span class='username'></span>").text(response.username + ":");
+  var message = $("<span class'text'></span>").text(response.text);
+  var time = $("<span class='createdAt'></span>").text(response.createdAt);
+  var chatroom = $("<span class='roomname'></span>").text("(" + response.roomname + ")");
+  node.append(user, message, time, chatroom);
+  $(".chats").prepend(node);
+};
+
 
 var getChats = function() {
   $.get(url + "?order=-createdAt", function(response) {
@@ -9,13 +20,7 @@ var getChats = function() {
     for (var i = messages.length -1; i >= 0 ; i--) {
       var date = new Date(messages[i].createdAt);
       if (date > latest) {
-        var node = $("<div class='chat' data-room='" + messages[i].roomname + "'></div>");
-        var user = $("<span class='username'></span>").text(messages[i].username + ":");
-        var message = $("<span class'text'></span>").text(messages[i].text);
-        var time = $("<span class='createdAt'></span>").text(messages[i].createdAt);
-        var chatroom = $("<span class='roomname'></span>").text("(" + messages[i].roomname + ")");
-        node.append(user, message, time, chatroom);
-        $(".chats").prepend(node);
+        appendNode(messages[i]);
         if (roomFilter && messages[i].roomname !== room) {
           node.hide();
         }
@@ -46,7 +51,6 @@ var sendMessage = function(event){
     data: JSON.stringify(message),
     contentType: 'application/json',
     success: function(response){
-      console.log("post");
     },
     error: function(req, errType, errMsg){
       console.error("Error sending request: ", errMsg);
@@ -59,6 +63,7 @@ var selectRoom = function(e) {
   room = $("input[name='rooms']").val();
 
   if (room === null || room === "") {
+    room = undefined;
     roomFilter = false;
     $(".chat").show();
     return;
@@ -67,8 +72,11 @@ var selectRoom = function(e) {
 
   $.each($(".chat"),function(index, value) {
     var currRoom = $(value).data("room");
-    if ((currRoom && currRoom !== room) || currRoom === null) {
+
+    if (currRoom === undefined || room !== currRoom) {
       $(value).hide();
+    } else {
+      $(value).show();
     }
   });
 
