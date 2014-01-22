@@ -1,6 +1,6 @@
 var ChatView = Backbone.View.extend({
   initialize: function() {
-    this.model.on("remove", this.deleteNode, this);
+    this.listenTo(this.model, "removeView", this.remove, this);
   },
   events: {
 
@@ -15,9 +15,6 @@ var ChatView = Backbone.View.extend({
   render: function() {
     this.$el.append(this.template(this.model.attributes));
     return this.$el;
-  },
-  deleteNode: function() {
-    this.$el.remove();
   }
 });
 

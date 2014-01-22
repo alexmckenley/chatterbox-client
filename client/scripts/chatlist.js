@@ -3,7 +3,12 @@ var ChatList = Backbone.Collection.extend({
   url: "https://api.parse.com/1/classes/chatterbox?order=-createdAt",
   parse: function(response) {
     return response.results;
+  },
+  initialize: function() {
+    this.on("remove", this.deleteModel);
+  },
+  deleteModel: function(model) {
+    model.trigger("removeView");
   }
 });
 
-//where={"score":{"$gte":1000,"$lte":3000}}
