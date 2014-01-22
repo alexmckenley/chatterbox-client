@@ -7,6 +7,7 @@ var ChatList = Backbone.Collection.extend({
   initialize: function() {
     this.on("remove", this.deleteModel);
     this.room;
+    this.friends = [];
   },
   deleteModel: function(model) {
     model.trigger("removeView");
