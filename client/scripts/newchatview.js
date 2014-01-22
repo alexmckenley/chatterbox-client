@@ -14,7 +14,7 @@ var NewChatView = Backbone.View.extend({
     chat.save({
       "username": this.getURLParameter('username'),
       "text": $(".newMessage").val(),
-      "roomname": "main"
+      "roomname": that.collection.room
     }, {success: function(resp) {
       that.clearInput();
       that.collection.add(chat);

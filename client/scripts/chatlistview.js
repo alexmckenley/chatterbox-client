@@ -15,7 +15,9 @@ var ChatListView = Backbone.View.extend({
   },
   addOne: function (chat, collection) {
     var chatView = new ChatView({model: chat});
-    this.$el.append(chatView.render());
+    if (this.collection.room === undefined || chat.get("roomname") === this.collection.room) {
+      this.$el.append(chatView.render());
+    }
   }
 });
 
@@ -25,4 +27,5 @@ $(document).ready(function() {
   var chatListView = new ChatListView({el: $(".chats"), collection: chatList});
   chatList.fetch({reset: true});
   var newChatView = new NewChatView({el: $(".post"), collection: chatList});
+  var newRoomFormView = new RoomFormView({el: $(".roomContainer"), collection: chatList});
 });
