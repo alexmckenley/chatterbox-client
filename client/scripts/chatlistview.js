@@ -14,11 +14,9 @@ var ChatListView = Backbone.View.extend({
     this.collection.forEach(this.addOne, this);
   },
   addOne: function (chat, collection) {
-    console.log(collection.length);
     var chatView = new ChatView({model: chat});
     this.$el.append(chatView.render());
   }
-
 });
 
 $(document).ready(function() {
@@ -26,4 +24,5 @@ $(document).ready(function() {
   chatList = new ChatList();
   var chatListView = new ChatListView({el: $(".chats"), collection: chatList});
   chatList.fetch({reset: true});
+  var newChatView = new NewChatView({el: $(".post"), collection: chatList});
 });
